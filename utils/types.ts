@@ -1,29 +1,15 @@
-export type Asset = {
-  walletId: string;
-  name: string;
-  ticker: string;
-  address?: string;
-  icon: string;
-  currentPrice?: number;
+export type Metrics = {
+  currentIndex: any;
+  totalSupply: any;
+  marketCap: any;
+  currentBlock: any;
+  circSupply: any;
+  fiveDayRate: any;
+  stakingAPY: any;
+  stakingTVL: any;
+  stakingRebase: any;
+  marketPrice: any;
+  currentBlockTime: any;
+  nextRebase: any;
+  epoch: any[];
 };
-
-export type Assets = Asset[] | undefined[];
-
-export interface ListedAsset extends Asset {
-  amount: number;
-  evolutionPts?: number;
-  evolutionPrice?: number;
-}
-
-export type Wallet = {
-  walletId?: string;
-  name: string;
-  icon: string;
-  totalValue?: number;
-  totalEvolutionPts?: number;
-  totalEvolutionPrice?: number;
-};
-
-export interface Portfolio {
-  [walletId: string]: Wallet;
-}
