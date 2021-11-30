@@ -59,7 +59,6 @@ export const CalculatorContextApp = ({ children }: any) => {
     );
     const romeContract = new ethers.Contract(addresses.rome, romeAbi, provider);
 
-    const fraxContract = new ethers.Contract(addresses.frax, fraxAbi, provider);
 
     const marketPrice = await getMarketPrice(provider);
 

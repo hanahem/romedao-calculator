@@ -11,6 +11,8 @@ const Calculator = () => {
   const { stakingRebase, stakingAPY, marketPrice, epoch } = metrics;
   const { TOKEN_NAME, STAKING_TOKEN_NAME } = tokens;
 
+  const trimmedStakingAPY = trim(stakingAPY * 100, 1);
+
   console.log("=====METRICS=====");
   console.log(metrics);
 
@@ -63,10 +65,12 @@ const Calculator = () => {
       case "futurePrice":
         setFutureLobiPrice(marketPrice.toString());
         break;
+        case "apy":
+        setApy(trimmedStakingAPY);
+        break;
     }
   };
 
-  const trimmedStakingAPY = trim(stakingAPY * 100, 1);
   const trimmedSLobiBalance = trim(Number(balance));
   const stakingRebasePercentage = trim(stakingRebase * 100, 4);
   const blockSecondLength = 13;
@@ -185,6 +189,9 @@ const Calculator = () => {
                       value={apy}
                       onChange={(e) => handleAPY(e.target.value)}
                     />
+                    <button onClick={() => setCurrent("apy")}>
+                      <p>Current</p>
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <input
