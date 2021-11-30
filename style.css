@@ -10,9 +10,6 @@
   #__next {
     @apply m-0 h-full;
   }
-  a {
-    @apply text-blue-800;
-  }
 
   /* Custom Components*/
   .metric {

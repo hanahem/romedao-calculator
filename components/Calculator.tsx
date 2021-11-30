@@ -143,7 +143,7 @@ const Calculator = () => {
   ];
 
   return (
-    <div className="flex flex-col xl:flex-row justify-center items-center gap-8">
+    <div className="flex flex-col xl:flex-row justify-center items-center xl:items-start gap-8">
       {/* FORM */}
       <div className="flex flex-col gap-4">
         <div className="metric">
@@ -152,6 +152,10 @@ const Calculator = () => {
             alt="Banner"
             className="rounded-xl w-80"
           />
+          <h1 className="text-2xl mt-2 text-gray-800 font-black">
+            {"RomeDAO Rewards Calculator"}
+          </h1>
+          <div className="h-1 w-full bg-brand"/>
         </div>
 
         <div className="metric">
@@ -365,9 +369,7 @@ const Calculator = () => {
                   {metric.label}
                 </span>
                 <span className="font-semibold text-brand">
-                  {metric.value}
-                  {" "}
-                  {metric.unit}
+                  {metric.value} {metric.unit}
                 </span>
               </div>
             )
