@@ -143,7 +143,7 @@ const Calculator = () => {
   ];
 
   return (
-    <div className="flex flex-col xl:flex-row justify-center items-center xl:items-start gap-8">
+    <div className="flex flex-col xl:flex-row justify-center items-center xl:items-start gap-8 mt-8 xxl:mt-20">
       {/* FORM */}
       <div className="flex flex-col gap-4">
         <div className="metric">
@@ -155,7 +155,7 @@ const Calculator = () => {
           <h1 className="text-2xl mt-2 text-gray-800 font-black">
             {"RomeDAO Rewards Calculator"}
           </h1>
-          <div className="h-1 w-full bg-brand"/>
+          <div className="h-1 w-full bg-brand" />
         </div>
 
         <div className="metric">
@@ -380,6 +380,9 @@ const Calculator = () => {
             </span>
             <RebaseTimer />
           </div>
+        </div>
+        <div className="metric">
+          <span className="text-gray-400">Not affiliated to RomeDAO</span>
         </div>
       </div>
     </div>
