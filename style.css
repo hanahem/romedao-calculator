@@ -16,12 +16,20 @@
 
   /* Custom Components*/
   .metric {
-    @apply py-6 px-4 rounded-xl bg-fg flex flex-col items-center justify-center;
+    @apply p-6 rounded-xl bg-fg flex flex-col items-center justify-center;
   }
-  .metric h6 {
+  .metric > h6 {
     @apply text-lg font-semibold text-brand;
   }
-  .metric p {
+  .metric > p {
     @apply text-sm font-semibold text-gray-600;
+  }
+
+  input {
+    @apply rounded-md px-2 py-1 border-2 border-gray-400;
+  }
+
+  button {
+    @apply rounded-md flex items-center justify-center bg-brand text-white px-2 py-1;
   }
 }

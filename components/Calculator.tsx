@@ -1,7 +1,8 @@
-import React, { SyntheticEvent, useState } from "react";
+import React, { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import useCalculator from "../contexts/CalculatorContext";
 import { tokens } from "../utils/constants";
-import { trim } from "../utils/utils";
+import { prettifySeconds, secondsUntilBlock, trim } from "../utils/utils";
+import RebaseTimer from "./RebaseTimer";
 
 const Calculator = () => {
   const [balance, setBalance] = useState(30);
@@ -17,7 +18,6 @@ const Calculator = () => {
     circSupply,
     fiveDayRate,
     marketCap,
-    nextRebase,
     stakingTVL,
     totalSupply,
   } = metrics;
@@ -112,241 +112,244 @@ const Calculator = () => {
     { label: "Staking APY", value: stakingAPY },
     { label: "Staking Rebase", value: stakingRebase },
     { label: "Staking TVL", value: stakingTVL },
-    { label: "Next Rebase", value: Number(nextRebase) },
   ];
 
   return (
-    <div className="">
-      <div>
-        <div className="">
-          <div className="">
-            <div className="grid grid-cols-2 grid-rows-2 gap-4">
-              <div className="metric">
-                <p className="">{TOKEN_NAME} Price</p>
-                <h6 className="">
-                  {!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}
-                </h6>
-              </div>
+    <div className="flex flex-col xl:flex-row justify-center items-center gap-8">
+      {/* FORM */}
+      <div className="flex flex-col gap-4">
+        <div className="metric">
+          <img
+            src="/images/banner.png"
+            alt="Banner"
+            className="rounded-xl w-80"
+          />
+        </div>
 
-              <div className="metric">
-                <p>APY</p>
-                <h6>
-                  {!loaded ? (
-                    <p>Loading</p>
-                  ) : parseFloat(trimmedStakingAPY) > 100000000 ? (
-                    "100,000,000% +"
-                  ) : (
-                    `${new Intl.NumberFormat("en-US").format(
-                      Number(trimmedStakingAPY)
-                    )}%`
-                  )}
-                </h6>
+        <div className="metric">
+          <div className="w-full flex flex-col justify-start items-start mb-4">
+            <p className="font-bold text-lg">Estimate Returns</p>
+            <p className="text-gray-600 text-sm">
+              Enter the data to use the calculator
+            </p>
+          </div>
+          <div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  placeholder={`${STAKING_TOKEN_NAME} amount`}
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
               </div>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  placeholder={`APY (%)`}
+                  value={apy}
+                  onChange={(e) => handleAPY(e.target.value)}
+                />
+                <button onClick={() => setCurrent("apy")}>
+                  <p>Current</p>
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  placeholder={`Reward yield each rebase (%)`}
+                  value={rewardYield}
+                  onChange={(e) => handleRewardYield(e.target.value)}
+                />
+                <button onClick={() => setCurrent("rewardYield")}>
+                  <p>Current</p>
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  placeholder={`${TOKEN_NAME} price at purchase ($) `}
+                  value={lobiPrice}
+                  onChange={(e) => setLobiPrice(e.target.value)}
+                />
+                <button onClick={() => setCurrent("setPrice")}>
+                  <p>Current</p>
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  placeholder={`Future ${TOKEN_NAME} market price ($)`}
+                  value={futureLobiPrice}
+                  onChange={(e) => setFutureLobiPrice(e.target.value)}
+                />
+                <button onClick={() => setCurrent("futurePrice")}>
+                  <p>Current</p>
+                </button>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  placeholder="days"
+                  type="number"
+                  onChange={(e: SyntheticEvent) => handleDays(e)}
+                />
+                <p className="m-auto">
+                  {days} {days === 1 ? "Day" : "Days"}
+                </p>
+              </div>
+            </div>
 
-              <div className="metric">
-                <p>Current Reward Yield</p>
-                <h6>
+            <div className="">
+              <div className="">
+                <p className="">Your Initial Investment</p>
+                <p className="">
                   {!loaded ? (
                     <p>{"LOADING"}</p>
                   ) : (
-                    <>{stakingRebasePercentage}%</>
-                  )}
-                </h6>
-              </div>
-
-              <div className="metric">
-                <p>Your {STAKING_TOKEN_NAME} Balance</p>
-                <h6>
-                  {loaded ? (
-                    "LOADING"
-                  ) : (
                     <>
-                      {trimmedSLobiBalance} {STAKING_TOKEN_NAME}
-                    </>
-                  )}
-                </h6>
-              </div>
-            </div>
-
-            <hr />
-
-            <div className="metric">
-              {otherMetricsTable.map(
-                (metric: { label: string; value: number }) => (
-                  <div
-                    key={metric.label}
-                    className="w-full bg-red-300 rounded-md flex items-center justify-between"
-                  >
-                    <p className="font-semibold text-xs text-gray-600">
-                      {metric.label}
-                    </p>
-                    <p className="text-gray-900">{metric.value}</p>
-                  </div>
-                )
-              )}
-            </div>
-
-            <hr />
-
-            <div className="">
-              <div>
-                <div className="">
-                  <div className="flex items-center justify-between">
-                    <input
-                      type="number"
-                      placeholder={`${STAKING_TOKEN_NAME} amount`}
-                      className=""
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <input
-                      type="number"
-                      placeholder={`APY (%)`}
-                      className=""
-                      value={apy}
-                      onChange={(e) => handleAPY(e.target.value)}
-                    />
-                    <button onClick={() => setCurrent("apy")}>
-                      <p>Current</p>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <input
-                      type="number"
-                      placeholder={`Reward yield each rebase (%)`}
-                      className=""
-                      value={rewardYield}
-                      onChange={(e) => handleRewardYield(e.target.value)}
-                    />
-                    <button onClick={() => setCurrent("rewardYield")}>
-                      <p>Current</p>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <input
-                      type="number"
-                      placeholder={`${TOKEN_NAME} price at purchase ($) `}
-                      className=""
-                      value={lobiPrice}
-                      onChange={(e) => setLobiPrice(e.target.value)}
-                    />
-                    <button onClick={() => setCurrent("setPrice")}>
-                      <p>Current</p>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <input
-                      type="number"
-                      placeholder={`Future ${TOKEN_NAME} market price ($)`}
-                      className=""
-                      value={futureLobiPrice}
-                      onChange={(e) => setFutureLobiPrice(e.target.value)}
-                    />
-                    <button onClick={() => setCurrent("futurePrice")}>
-                      <p>Current</p>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    {/* <Slider className="slider" min={1} max={365} onChange={(e, val) => handleDays(val)} value={days} />{" "} */}
-                    <input
-                      placeholder="days"
-                      type="number"
-                      onChange={(e: SyntheticEvent) => handleDays(e)}
-                    />
-                    <p className="days-text">
-                      {days} {days === 1 ? "Day" : "Days"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="">
-                  <div className="">
-                    <p className="">Your Initial Investment</p>
-                    <p className="">
-                      {!loaded ? (
-                        <p>{"LOADING"}</p>
-                      ) : (
-                        <>
-                          {initialInvestment > 0
-                            ? new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                maximumFractionDigits: 5,
-                                minimumFractionDigits: 0,
-                              }).format(initialInvestment)
-                            : new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                maximumFractionDigits: 0,
-                                minimumFractionDigits: 0,
-                              }).format(0)}
-                        </>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="">
-                    <p className="">{`${TOKEN_NAME} rewards estimation`}</p>
-                    <p className="">
-                      {totalReturn > 0
-                        ? `${trim(totalReturn, 4)} ${TOKEN_NAME}`
-                        : `0 ${TOKEN_NAME}`}
-                    </p>
-                  </div>
-
-                  <div className="">
-                    <p className="">Total return</p>
-                    <p className="">
-                      {!isNaN(potentialReturn)
+                      {initialInvestment > 0
                         ? new Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
                             maximumFractionDigits: 5,
                             minimumFractionDigits: 0,
-                          }).format(potentialReturn)
-                        : "--"}
-                    </p>
-                  </div>
-                  {rewardYield !== "" && (
-                    <div style={{ width: "100%" }}>
-                      <hr />
-                    </div>
+                          }).format(initialInvestment)
+                        : new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                            minimumFractionDigits: 0,
+                          }).format(0)}
+                    </>
                   )}
-                </div>
+                </p>
               </div>
-              )
+
+              <div className="">
+                <p className="">{`${TOKEN_NAME} rewards estimation`}</p>
+                <p className="">
+                  {totalReturn > 0
+                    ? `${trim(totalReturn, 4)} ${TOKEN_NAME}`
+                    : `0 ${TOKEN_NAME}`}
+                </p>
+              </div>
+
+              <div className="">
+                <p className="">Total return</p>
+                <p className="">
+                  {!isNaN(potentialReturn)
+                    ? new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 5,
+                        minimumFractionDigits: 0,
+                      }).format(potentialReturn)
+                    : "--"}
+                </p>
+              </div>
               {rewardYield !== "" && (
-                <div className="">
-                  <div className="">
-                    <p className="">Amount of days Until...</p>
-                    <p className=""></p>
-                  </div>
-                  <div className="">
-                    <p className="">2x {STAKING_TOKEN_NAME}</p>
-                    <p className="">
-                      {trim(daysUntilTwoTimes, 1)}{" "}
-                      {daysUntilTwoTimes > 1 ? "Days" : "Day"}
-                    </p>
-                  </div>
-                  <div className="">
-                    <p className="">5x {STAKING_TOKEN_NAME}</p>
-                    <p className="">
-                      {trim(daysUntilFiveTimes, 1)}{" "}
-                      {daysUntilTwoTimes > 1 ? "Days" : "Day"}
-                    </p>
-                  </div>
-                  <div className="">
-                    <p className="">10x {STAKING_TOKEN_NAME}</p>
-                    <p className="">
-                      {trim(daysUntilTenTimes, 1)}{" "}
-                      {daysUntilTwoTimes > 1 ? "Days" : "Day"}
-                    </p>
-                  </div>
+                <div style={{ width: "100%" }}>
+                  <hr />
                 </div>
               )}
             </div>
+          </div>
+          )
+          {rewardYield !== "" && (
+            <div className="">
+              <div className="">
+                <p className="">Amount of days Until...</p>
+                <p className=""></p>
+              </div>
+              <div className="">
+                <p className="">2x {STAKING_TOKEN_NAME}</p>
+                <p className="">
+                  {trim(daysUntilTwoTimes, 1)}{" "}
+                  {daysUntilTwoTimes > 1 ? "Days" : "Day"}
+                </p>
+              </div>
+              <div className="">
+                <p className="">5x {STAKING_TOKEN_NAME}</p>
+                <p className="">
+                  {trim(daysUntilFiveTimes, 1)}{" "}
+                  {daysUntilTwoTimes > 1 ? "Days" : "Day"}
+                </p>
+              </div>
+              <div className="">
+                <p className="">10x {STAKING_TOKEN_NAME}</p>
+                <p className="">
+                  {trim(daysUntilTenTimes, 1)}{" "}
+                  {daysUntilTwoTimes > 1 ? "Days" : "Day"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* METRICS */}
+      <div>
+        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+          <div className="metric">
+            <p className="">{TOKEN_NAME} Price</p>
+            <h6 className="">
+              {!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}
+            </h6>
+          </div>
+
+          <div className="metric">
+            <p>APY</p>
+            <h6>
+              {!loaded ? (
+                <p>Loading</p>
+              ) : parseFloat(trimmedStakingAPY) > 100000000 ? (
+                "100,000,000% +"
+              ) : (
+                `${new Intl.NumberFormat("en-US").format(
+                  Number(trimmedStakingAPY)
+                )}%`
+              )}
+            </h6>
+          </div>
+
+          <div className="metric">
+            <p>Current Reward Yield</p>
+            <h6>
+              {!loaded ? <p>{"LOADING"}</p> : <>{stakingRebasePercentage}%</>}
+            </h6>
+          </div>
+
+          <div className="metric">
+            <p>Your {STAKING_TOKEN_NAME} Balance</p>
+            <h6>
+              {loaded ? (
+                "LOADING"
+              ) : (
+                <>
+                  {trimmedSLobiBalance} {STAKING_TOKEN_NAME}
+                </>
+              )}
+            </h6>
+          </div>
+        </div>
+
+        <div className="metric gap-2 my-4">
+          {otherMetricsTable.map((metric: { label: string; value: number }) => (
+            <div
+              key={metric.label}
+              className="w-full px-2 py-1 bg-white rounded-md flex items-center justify-between"
+            >
+              <span className="font-normal text-xs text-gray-600">
+                {metric.label}
+              </span>
+              <span className="font-semibold text-brand">{metric.value}</span>
+            </div>
+          ))}
+          <div className="w-full px-2 py-1 bg-white rounded-md flex items-center justify-between">
+            <span className="font-normal text-xs text-gray-600">
+              {"Next Rebase"}
+            </span>
+            <RebaseTimer />
           </div>
         </div>
       </div>

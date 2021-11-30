@@ -1,15 +1,15 @@
 export type Metrics = {
-  currentIndex: any;
-  totalSupply: any;
-  marketCap: any;
-  currentBlock: any;
-  circSupply: any;
-  fiveDayRate: any;
-  stakingAPY: any;
-  stakingTVL: any;
-  stakingRebase: any;
-  marketPrice: any;
-  currentBlockTime: any;
-  nextRebase: any;
+  currentIndex: number;
+  totalSupply: number;
+  marketCap: number;
+  currentBlock: number;
+  circSupply: number;
+  fiveDayRate: number;
+  stakingAPY: number;
+  stakingTVL: number;
+  stakingRebase: number;
+  marketPrice: number;
+  currentBlockTime: number;
+  nextRebase: number;
   epoch: any[];
 };
