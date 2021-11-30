@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import React, { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import useCalculator from "../contexts/CalculatorContext";
 import { tokens } from "../utils/constants";
@@ -30,9 +31,9 @@ const Calculator = () => {
 
   const [quantity, setQuantity] = useState<string>("");
   const [rewardYield, setRewardYield] = useState<string>("");
-  const [lobiPrice, setLobiPrice] = useState<string>("");
+  const [romePrice, setRomePrice] = useState<string>("");
   const [days, setDays] = useState<number>(30);
-  const [futureLobiPrice, setFutureLobiPrice] = useState<string>("");
+  const [futureRomePrice, setFutureRomePrice] = useState<string>("");
   const [apy, setApy] = useState<string>("");
 
   const handleDays = (e: SyntheticEvent) => {
@@ -72,10 +73,10 @@ const Calculator = () => {
         setApy(trim(newAPY, 4).toString());
         break;
       case "setPrice":
-        setLobiPrice(marketPrice.toString());
+        setRomePrice(marketPrice.toString());
         break;
       case "futurePrice":
-        setFutureLobiPrice(marketPrice.toString());
+        setFutureRomePrice(marketPrice.toString());
         break;
       case "apy":
         setApy(trimmedStakingAPY);
@@ -91,9 +92,9 @@ const Calculator = () => {
   const totalReturn =
     (Math.pow(1 + Number(rewardYield) / 100, days * dailyRebaseAmounts) - 1) *
     Number(quantity);
-  const initialInvestment = parseFloat(lobiPrice) * parseFloat(quantity);
+  const initialInvestment = parseFloat(romePrice) * parseFloat(quantity);
   const potentialReturn =
-    parseFloat(futureLobiPrice) * (totalReturn + Number(quantity)) -
+    parseFloat(futureRomePrice) * (totalReturn + Number(quantity)) -
     initialInvestment;
   const daysUntilTwoTimes =
     Math.log(2) / Math.log(1 + Number(rewardYield) / 100) / dailyRebaseAmounts;
@@ -102,16 +103,43 @@ const Calculator = () => {
   const daysUntilTenTimes =
     Math.log(10) / Math.log(1 + Number(rewardYield) / 100) / dailyRebaseAmounts;
 
-  const otherMetricsTable: { label: string; value: number }[] = [
-    { label: "Current Index", value: currentIndex },
-    { label: "Circulating Supply", value: circSupply },
-    { label: "Market Cap", value: marketCap },
-    { label: "Market Price", value: marketPrice },
-    { label: "Total Supply", value: totalSupply },
-    { label: "5-day Rate", value: fiveDayRate },
-    { label: "Staking APY", value: stakingAPY },
-    { label: "Staking Rebase", value: stakingRebase },
-    { label: "Staking TVL", value: stakingTVL },
+  const otherMetricsTable: { label: string; value: string; unit: string }[] = [
+    { label: "Current Index", value: trim(currentIndex, 4), unit: "ROME" },
+    { label: "Circulating Supply", value: trim(circSupply, 4), unit: "ROME" },
+    {
+      label: "Market Cap",
+      value: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+      }).format(marketCap),
+      unit: "",
+    },
+    {
+      label: "Market Price",
+      value: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+      }).format(marketPrice),
+      unit: "",
+    },
+    { label: "Total Supply", value: trim(totalSupply, 4), unit: "ROME" },
+    { label: "5-day Rate", value: trim(fiveDayRate, 4), unit: "%" },
+    { label: "Staking APY", value: trim(stakingAPY, 4), unit: "%" },
+    { label: "Staking Rebase", value: trim(stakingRebase, 4), unit: "%" },
+    {
+      label: "Staking TVL",
+      value: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+      }).format(stakingTVL),
+      unit: "",
+    },
   ];
 
   return (
@@ -169,8 +197,8 @@ const Calculator = () => {
                 <input
                   type="number"
                   placeholder={`${TOKEN_NAME} price at purchase ($) `}
-                  value={lobiPrice}
-                  onChange={(e) => setLobiPrice(e.target.value)}
+                  value={romePrice}
+                  onChange={(e) => setRomePrice(e.target.value)}
                 />
                 <button onClick={() => setCurrent("setPrice")}>
                   <p>Current</p>
@@ -180,8 +208,8 @@ const Calculator = () => {
                 <input
                   type="number"
                   placeholder={`Future ${TOKEN_NAME} market price ($)`}
-                  value={futureLobiPrice}
-                  onChange={(e) => setFutureLobiPrice(e.target.value)}
+                  value={futureRomePrice}
+                  onChange={(e) => setFutureRomePrice(e.target.value)}
                 />
                 <button onClick={() => setCurrent("futurePrice")}>
                   <p>Current</p>
@@ -199,10 +227,10 @@ const Calculator = () => {
               </div>
             </div>
 
-            <div className="">
-              <div className="">
-                <p className="">Your Initial Investment</p>
-                <p className="">
+            <div className="w-full mt-4">
+              <div className="w-full flex items-center justify-between">
+                <p>Your Initial Investment</p>
+                <p>
                   {!loaded ? (
                     <p>{"LOADING"}</p>
                   ) : (
@@ -225,18 +253,18 @@ const Calculator = () => {
                 </p>
               </div>
 
-              <div className="">
-                <p className="">{`${TOKEN_NAME} rewards estimation`}</p>
-                <p className="">
+              <div className="w-full flex items-center justify-between">
+                <p>{`${TOKEN_NAME} rewards estimation`}</p>
+                <p>
                   {totalReturn > 0
                     ? `${trim(totalReturn, 4)} ${TOKEN_NAME}`
                     : `0 ${TOKEN_NAME}`}
                 </p>
               </div>
 
-              <div className="">
-                <p className="">Total return</p>
-                <p className="">
+              <div className="w-full flex items-center justify-between">
+                <p>Total return</p>
+                <p>
                   {!isNaN(potentialReturn)
                     ? new Intl.NumberFormat("en-US", {
                         style: "currency",
@@ -247,37 +275,32 @@ const Calculator = () => {
                     : "--"}
                 </p>
               </div>
-              {rewardYield !== "" && (
-                <div style={{ width: "100%" }}>
-                  <hr />
-                </div>
-              )}
             </div>
           </div>
-          )
+
           {rewardYield !== "" && (
-            <div className="">
-              <div className="">
-                <p className="">Amount of days Until...</p>
-                <p className=""></p>
+            <div className="w-full mt-4">
+              <div>
+                <p>Amount of days Until...</p>
+                <p></p>
               </div>
-              <div className="">
-                <p className="">2x {STAKING_TOKEN_NAME}</p>
-                <p className="">
+              <div className="w-full flex items-center justify-between">
+                <p>2x {STAKING_TOKEN_NAME}</p>
+                <p>
                   {trim(daysUntilTwoTimes, 1)}{" "}
                   {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                 </p>
               </div>
-              <div className="">
-                <p className="">5x {STAKING_TOKEN_NAME}</p>
-                <p className="">
+              <div className="w-full flex items-center justify-between">
+                <p>5x {STAKING_TOKEN_NAME}</p>
+                <p>
                   {trim(daysUntilFiveTimes, 1)}{" "}
                   {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                 </p>
               </div>
-              <div className="">
-                <p className="">10x {STAKING_TOKEN_NAME}</p>
-                <p className="">
+              <div className="w-full flex items-center justify-between">
+                <p>10x {STAKING_TOKEN_NAME}</p>
+                <p>
                   {trim(daysUntilTenTimes, 1)}{" "}
                   {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                 </p>
@@ -291,10 +314,8 @@ const Calculator = () => {
       <div>
         <div className="grid grid-cols-2 grid-rows-2 gap-4">
           <div className="metric">
-            <p className="">{TOKEN_NAME} Price</p>
-            <h6 className="">
-              {!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}
-            </h6>
+            <p>{TOKEN_NAME} Price</p>
+            <h6>{!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}</h6>
           </div>
 
           <div className="metric">
@@ -334,17 +355,23 @@ const Calculator = () => {
         </div>
 
         <div className="metric gap-2 my-4">
-          {otherMetricsTable.map((metric: { label: string; value: number }) => (
-            <div
-              key={metric.label}
-              className="w-full px-2 py-1 bg-white rounded-md flex items-center justify-between"
-            >
-              <span className="font-normal text-xs text-gray-600">
-                {metric.label}
-              </span>
-              <span className="font-semibold text-brand">{metric.value}</span>
-            </div>
-          ))}
+          {otherMetricsTable.map(
+            (metric: { label: string; value: string; unit: string }) => (
+              <div
+                key={metric.label}
+                className="w-full px-2 py-1 bg-white rounded-md flex items-center justify-between"
+              >
+                <span className="font-normal text-xs text-gray-600">
+                  {metric.label}
+                </span>
+                <span className="font-semibold text-brand">
+                  {metric.value}
+                  {" "}
+                  {metric.unit}
+                </span>
+              </div>
+            )
+          )}
           <div className="w-full px-2 py-1 bg-white rounded-md flex items-center justify-between">
             <span className="font-normal text-xs text-gray-600">
               {"Next Rebase"}

@@ -59,7 +59,6 @@ export const CalculatorContextApp = ({ children }: any) => {
     );
     const romeContract = new ethers.Contract(addresses.rome, romeAbi, provider);
 
-
     const marketPrice = await getMarketPrice(provider);
 
     const totalSupply = (await romeContract.totalSupply()) / Math.pow(10, 9);
@@ -86,14 +85,14 @@ export const CalculatorContextApp = ({ children }: any) => {
     setMetrics({
       currentIndex: Number(ethers.utils.formatUnits(currentIndex, "gwei")),
       totalSupply,
-      marketCap,
+      marketCap: marketCap * Math.pow(10, -9),
       currentBlock,
       circSupply,
       fiveDayRate,
       stakingAPY,
-      stakingTVL,
+      stakingTVL: stakingTVL * Math.pow(10, -9),
       stakingRebase,
-      marketPrice,
+      marketPrice: marketPrice * Math.pow(10, -9),
       currentBlockTime,
       nextRebase,
       epoch,
