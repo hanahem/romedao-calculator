@@ -5,9 +5,8 @@ module.exports = {
     extend: {
       colors: {
         bg: "#f9f8ff",
-      },
-      borderRadius: {
-        DEFAULT: ".5rem",
+        brand: "#c33c40",
+        fg: "#f5f4f4",
       },
     },
   },

@@ -4,11 +4,23 @@ import { tokens } from "../utils/constants";
 import { trim } from "../utils/utils";
 
 const Calculator = () => {
-  const [balance, setBalance] = useState();
+  const [balance, setBalance] = useState(30);
 
   const calculatorCtx = useCalculator();
   const { loaded, metrics } = calculatorCtx;
-  const { stakingRebase, stakingAPY, marketPrice, epoch } = metrics;
+  const {
+    stakingRebase,
+    stakingAPY,
+    marketPrice,
+    epoch,
+    currentIndex,
+    circSupply,
+    fiveDayRate,
+    marketCap,
+    nextRebase,
+    stakingTVL,
+    totalSupply,
+  } = metrics;
   const { TOKEN_NAME, STAKING_TOKEN_NAME } = tokens;
 
   const trimmedStakingAPY = trim(stakingAPY * 100, 1);
@@ -65,7 +77,7 @@ const Calculator = () => {
       case "futurePrice":
         setFutureLobiPrice(marketPrice.toString());
         break;
-        case "apy":
+      case "apy":
         setApy(trimmedStakingAPY);
         break;
     }
@@ -90,93 +102,100 @@ const Calculator = () => {
   const daysUntilTenTimes =
     Math.log(10) / Math.log(1 + Number(rewardYield) / 100) / dailyRebaseAmounts;
 
+  const otherMetricsTable: { label: string; value: number }[] = [
+    { label: "Current Index", value: currentIndex },
+    { label: "Circulating Supply", value: circSupply },
+    { label: "Market Cap", value: marketCap },
+    { label: "Market Price", value: marketPrice },
+    { label: "Total Supply", value: totalSupply },
+    { label: "5-day Rate", value: fiveDayRate },
+    { label: "Staking APY", value: stakingAPY },
+    { label: "Staking Rebase", value: stakingRebase },
+    { label: "Staking TVL", value: stakingTVL },
+    { label: "Next Rebase", value: Number(nextRebase) },
+  ];
+
   return (
-    <div className="stake-view">
+    <div className="">
       <div>
-        <div className="stake-card">
-          <div className="div gap-2">
-            <div>
-              <div className="stake-card-header">
-                <p className="stake-card-header-title">Calculator</p>
-                <p className="stake-card-header-description">
-                  Please fill the inputs to simulate your rewards
-                </p>
+        <div className="">
+          <div className="">
+            <div className="grid grid-cols-2 grid-rows-2 gap-4">
+              <div className="metric">
+                <p className="">{TOKEN_NAME} Price</p>
+                <h6 className="">
+                  {!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}
+                </h6>
+              </div>
+
+              <div className="metric">
+                <p>APY</p>
+                <h6>
+                  {!loaded ? (
+                    <p>Loading</p>
+                  ) : parseFloat(trimmedStakingAPY) > 100000000 ? (
+                    "100,000,000% +"
+                  ) : (
+                    `${new Intl.NumberFormat("en-US").format(
+                      Number(trimmedStakingAPY)
+                    )}%`
+                  )}
+                </h6>
+              </div>
+
+              <div className="metric">
+                <p>Current Reward Yield</p>
+                <h6>
+                  {!loaded ? (
+                    <p>{"LOADING"}</p>
+                  ) : (
+                    <>{stakingRebasePercentage}%</>
+                  )}
+                </h6>
+              </div>
+
+              <div className="metric">
+                <p>Your {STAKING_TOKEN_NAME} Balance</p>
+                <h6>
+                  {loaded ? (
+                    "LOADING"
+                  ) : (
+                    <>
+                      {trimmedSLobiBalance} {STAKING_TOKEN_NAME}
+                    </>
+                  )}
+                </h6>
               </div>
             </div>
 
-            <div>
-              <div className="stake-card-metrics">
-                <div>
-                  <div>
-                    <div className="stake-card-apy">
-                      <p className="stake-card-metrics-title">
-                        {TOKEN_NAME} Price
-                      </p>
-                      <p className="stake-card-metrics-value">
-                        {!loaded ? (
-                          <p>{"LOADING"}</p>
-                        ) : (
-                          `$${trim(marketPrice, 2)}`
-                        )}
-                      </p>
-                    </div>
-                  </div>
+            <hr />
 
-                  <div>
-                    {!loaded ? (
-                      <p>Loading</p>
-                    ) : parseFloat(trimmedStakingAPY) > 100000000 ? (
-                      "100,000,000% +"
-                    ) : (
-                      `${new Intl.NumberFormat("en-US").format(
-                        Number(trimmedStakingAPY)
-                      )}%`
-                    )}
+            <div className="metric">
+              {otherMetricsTable.map(
+                (metric: { label: string; value: number }) => (
+                  <div
+                    key={metric.label}
+                    className="w-full bg-red-300 rounded-md flex items-center justify-between"
+                  >
+                    <p className="font-semibold text-xs text-gray-600">
+                      {metric.label}
+                    </p>
+                    <p className="text-gray-900">{metric.value}</p>
                   </div>
-
-                  <div>
-                    <div className="stake-card-tvl">
-                      <p className="stake-card-metrics-title">
-                        Current Reward Yield
-                      </p>
-                      <p className="stake-card-metrics-value">
-                        {!loaded ? (
-                          <p>{"LOADING"}</p>
-                        ) : (
-                          <>{stakingRebasePercentage}%</>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="stake-card-index">
-                      <p className="stake-card-metrics-title">
-                        Your {STAKING_TOKEN_NAME} Balance
-                      </p>
-                      <p className="stake-card-metrics-value">
-                        {loaded ? (
-                          <p>{"LOADING"}</p>
-                        ) : (
-                          <>
-                            {trimmedSLobiBalance} {STAKING_TOKEN_NAME}
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                )
+              )}
             </div>
 
-            <div className="stake-card-area">
+            <hr />
+
+            <div className="">
               <div>
-                <div className="stake-card-action-area">
+                <div className="">
                   <div className="flex items-center justify-between">
                     <input
                       type="number"
                       placeholder={`${STAKING_TOKEN_NAME} amount`}
-                      className="stake-card-action-input"
+                      className=""
                       value={quantity}
                       onChange={(e) => setQuantity(e.target.value)}
                     />
@@ -185,7 +204,7 @@ const Calculator = () => {
                     <input
                       type="number"
                       placeholder={`APY (%)`}
-                      className="stake-card-action-input"
+                      className=""
                       value={apy}
                       onChange={(e) => handleAPY(e.target.value)}
                     />
@@ -197,7 +216,7 @@ const Calculator = () => {
                     <input
                       type="number"
                       placeholder={`Reward yield each rebase (%)`}
-                      className="stake-card-action-input"
+                      className=""
                       value={rewardYield}
                       onChange={(e) => handleRewardYield(e.target.value)}
                     />
@@ -209,7 +228,7 @@ const Calculator = () => {
                     <input
                       type="number"
                       placeholder={`${TOKEN_NAME} price at purchase ($) `}
-                      className="stake-card-action-input"
+                      className=""
                       value={lobiPrice}
                       onChange={(e) => setLobiPrice(e.target.value)}
                     />
@@ -221,7 +240,7 @@ const Calculator = () => {
                     <input
                       type="number"
                       placeholder={`Future ${TOKEN_NAME} market price ($)`}
-                      className="stake-card-action-input"
+                      className=""
                       value={futureLobiPrice}
                       onChange={(e) => setFutureLobiPrice(e.target.value)}
                     />
@@ -242,10 +261,10 @@ const Calculator = () => {
                   </div>
                 </div>
 
-                <div className="stake-user-data">
-                  <div className="data-row">
-                    <p className="data-row-name">Your Initial Investment</p>
-                    <p className="data-row-value">
+                <div className="">
+                  <div className="">
+                    <p className="">Your Initial Investment</p>
+                    <p className="">
                       {!loaded ? (
                         <p>{"LOADING"}</p>
                       ) : (
@@ -268,18 +287,18 @@ const Calculator = () => {
                     </p>
                   </div>
 
-                  <div className="data-row">
-                    <p className="data-row-name">{`${TOKEN_NAME} rewards estimation`}</p>
-                    <p className="data-row-value">
+                  <div className="">
+                    <p className="">{`${TOKEN_NAME} rewards estimation`}</p>
+                    <p className="">
                       {totalReturn > 0
                         ? `${trim(totalReturn, 4)} ${TOKEN_NAME}`
                         : `0 ${TOKEN_NAME}`}
                     </p>
                   </div>
 
-                  <div className="data-row">
-                    <p className="data-row-name">Total return</p>
-                    <p className="data-row-value">
+                  <div className="">
+                    <p className="">Total return</p>
+                    <p className="">
                       {!isNaN(potentialReturn)
                         ? new Intl.NumberFormat("en-US", {
                             style: "currency",
@@ -299,28 +318,28 @@ const Calculator = () => {
               </div>
               )
               {rewardYield !== "" && (
-                <div className="stake-user-data">
-                  <div className="data-row">
-                    <p className="data-row-name">Amount of days Until...</p>
-                    <p className="data-row-value"></p>
+                <div className="">
+                  <div className="">
+                    <p className="">Amount of days Until...</p>
+                    <p className=""></p>
                   </div>
-                  <div className="data-row">
-                    <p className="data-row-name">2x {STAKING_TOKEN_NAME}</p>
-                    <p className="data-row-value">
+                  <div className="">
+                    <p className="">2x {STAKING_TOKEN_NAME}</p>
+                    <p className="">
                       {trim(daysUntilTwoTimes, 1)}{" "}
                       {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                     </p>
                   </div>
-                  <div className="data-row">
-                    <p className="data-row-name">5x {STAKING_TOKEN_NAME}</p>
-                    <p className="data-row-value">
+                  <div className="">
+                    <p className="">5x {STAKING_TOKEN_NAME}</p>
+                    <p className="">
                       {trim(daysUntilFiveTimes, 1)}{" "}
                       {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                     </p>
                   </div>
-                  <div className="data-row">
-                    <p className="data-row-name">10x {STAKING_TOKEN_NAME}</p>
-                    <p className="data-row-value">
+                  <div className="">
+                    <p className="">10x {STAKING_TOKEN_NAME}</p>
+                    <p className="">
                       {trim(daysUntilTenTimes, 1)}{" "}
                       {daysUntilTwoTimes > 1 ? "Days" : "Day"}
                     </p>
