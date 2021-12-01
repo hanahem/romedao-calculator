@@ -80,7 +80,6 @@ const Calculator = () => {
     }
   };
 
-  const trimmedSLobiBalance = trim(Number(0));
   const stakingRebasePercentage = trim(stakingRebase * 100, 4);
   const blockSecondLength = 13;
   const rebaseTimeInSeconds = epoch ? epoch[0] * blockSecondLength : 28800;
