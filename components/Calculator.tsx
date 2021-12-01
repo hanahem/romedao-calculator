@@ -6,8 +6,6 @@ import Footer from "./Footer";
 import RebaseTimer from "./RebaseTimer";
 
 const Calculator = () => {
-  //   const [balance, setBalance] = useState(30);
-
   const calculatorCtx = useCalculator();
   const { loaded, metrics } = calculatorCtx;
   const {
