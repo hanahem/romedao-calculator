@@ -1,12 +1,11 @@
 import { ethers } from "ethers";
 import { useEffect, useContext, createContext, useState } from "react";
-import { fraxAbi } from "../abis/frax.abi";
 import { romeAbi } from "../abis/rome.abi";
 import { sRomeAbi } from "../abis/sRome.abi";
 import { stakingAbi } from "../abis/staking.abi";
 import { addresses } from "../utils/constants";
 import { Metrics } from "../utils/types";
-import { getMarketPrice, getTokenPrice } from "../utils/utils";
+import { getMarketPrice } from "../utils/utils";
 
 /*************************************
  **	Default states for metrics

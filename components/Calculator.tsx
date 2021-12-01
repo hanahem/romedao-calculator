@@ -1,12 +1,11 @@
-import { ethers } from "ethers";
-import React, { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import React, { SyntheticEvent, useState } from "react";
 import useCalculator from "../contexts/CalculatorContext";
 import { tokens } from "../utils/constants";
-import { prettifySeconds, secondsUntilBlock, trim } from "../utils/utils";
+import { trim } from "../utils/utils";
 import RebaseTimer from "./RebaseTimer";
 
 const Calculator = () => {
-  const [balance, setBalance] = useState(30);
+  //   const [balance, setBalance] = useState(30);
 
   const calculatorCtx = useCalculator();
   const { loaded, metrics } = calculatorCtx;
@@ -84,7 +83,7 @@ const Calculator = () => {
     }
   };
 
-  const trimmedSLobiBalance = trim(Number(balance));
+  const trimmedSLobiBalance = trim(Number(0));
   const stakingRebasePercentage = trim(stakingRebase * 100, 4);
   const blockSecondLength = 13;
   const rebaseTimeInSeconds = epoch ? epoch[0] * blockSecondLength : 28800;
