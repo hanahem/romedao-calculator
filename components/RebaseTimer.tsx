@@ -10,7 +10,7 @@ function RebaseTimer() {
   useEffect(() => {
     if (currentBlockTime && nextRebase) {
       const seconds = secondsUntilBlock(currentBlockTime, nextRebase);
-      const time = prettifySeconds(seconds);
+      const time = prettifySeconds(seconds * -Math.pow(10, -6));
       setTimeUntilRebase(time);
     }
   }, [currentBlockTime, nextRebase]);
@@ -21,7 +21,8 @@ function RebaseTimer() {
         {currentBlockTime ? (
           timeUntilRebase ? (
             <>
-              <strong>{timeUntilRebase}</strong> to Next Rebase
+              <strong>{timeUntilRebase}</strong>{" "}
+              <p className="text-xs">to next rebase</p>
             </>
           ) : (
             <strong>Rebasing</strong>
