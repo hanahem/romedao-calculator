@@ -25,9 +25,6 @@ const Calculator = () => {
 
   const trimmedStakingAPY = trim(stakingAPY * 100, 1);
 
-  console.log("=====METRICS=====");
-  console.log(metrics);
-
   const [quantity, setQuantity] = useState<string>("");
   const [rewardYield, setRewardYield] = useState<string>("");
   const [romePrice, setRomePrice] = useState<string>("");
@@ -104,7 +101,11 @@ const Calculator = () => {
 
   const otherMetricsTable: { label: string; value: string; unit: string }[] = [
     { label: "Current Index", value: trim(currentIndex, 4), unit: "ROME" },
-    { label: "Circulating Supply", value: trim(circSupply, 4), unit: "ROME" },
+    {
+      label: "Circulating Supply",
+      value: new Intl.NumberFormat("en-US").format(Number(trim(circSupply, 4))),
+      unit: "ROME",
+    },
     {
       label: "Market Cap",
       value: new Intl.NumberFormat("en-US", {
@@ -125,9 +126,14 @@ const Calculator = () => {
       }).format(marketPrice),
       unit: "",
     },
-    { label: "Total Supply", value: trim(totalSupply, 4), unit: "ROME" },
+    {
+      label: "Total Supply",
+      value: new Intl.NumberFormat("en-US").format(
+        Number(trim(totalSupply, 4))
+      ),
+      unit: "ROME",
+    },
     { label: "5-day Rate", value: trim(fiveDayRate, 4), unit: "%" },
-    { label: "Staking APY", value: trim(stakingAPY, 4), unit: "%" },
     { label: "Staking Rebase", value: trim(stakingRebase, 4), unit: "%" },
     {
       label: "Staking TVL",
@@ -316,7 +322,7 @@ const Calculator = () => {
       {/* METRICS */}
       <div>
         <div className="grid grid-cols-2 grid-rows-2 gap-4">
-          <div className="metric">
+          <div className="metric col-span-2">
             <p>{TOKEN_NAME} Price</p>
             <h6>{!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}</h6>
           </div>
@@ -340,19 +346,6 @@ const Calculator = () => {
             <p>Current Reward Yield</p>
             <h6>
               {!loaded ? <p>{"LOADING"}</p> : <>{stakingRebasePercentage}%</>}
-            </h6>
-          </div>
-
-          <div className="metric">
-            <p>Your {STAKING_TOKEN_NAME} Balance</p>
-            <h6>
-              {loaded ? (
-                "LOADING"
-              ) : (
-                <>
-                  {trimmedSLobiBalance} {STAKING_TOKEN_NAME}
-                </>
-              )}
             </h6>
           </div>
         </div>
