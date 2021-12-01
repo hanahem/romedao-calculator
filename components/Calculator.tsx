@@ -2,6 +2,7 @@ import React, { SyntheticEvent, useState } from "react";
 import useCalculator from "../contexts/CalculatorContext";
 import { tokens } from "../utils/constants";
 import { trim } from "../utils/utils";
+import Footer from "./Footer";
 import RebaseTimer from "./RebaseTimer";
 
 const Calculator = () => {
@@ -319,18 +320,24 @@ const Calculator = () => {
       </div>
 
       {/* METRICS */}
-      <div>
-        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+      <div className="flex flex-col items-center justify-between">
+        <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full">
           <div className="metric col-span-2">
             <p>{TOKEN_NAME} Price</p>
-            <h6>{!loaded ? <p>{"LOADING"}</p> : `$${trim(marketPrice, 2)}`}</h6>
+            <h6>
+              {!loaded ? (
+                <div className="h-2 w-2 bg-brand animate-ping rounded-full mt-4" />
+              ) : (
+                `$${trim(marketPrice, 2)}`
+              )}
+            </h6>
           </div>
 
           <div className="metric">
             <p>APY</p>
             <h6>
               {!loaded ? (
-                <p>Loading</p>
+                <div className="h-2 w-2 bg-brand animate-ping rounded-full mt-4" />
               ) : parseFloat(trimmedStakingAPY) > 100000000 ? (
                 "100,000,000% +"
               ) : (
@@ -344,12 +351,16 @@ const Calculator = () => {
           <div className="metric">
             <p>Current Reward Yield</p>
             <h6>
-              {!loaded ? <p>{"LOADING"}</p> : <>{stakingRebasePercentage}%</>}
+              {!loaded ? (
+                <div className="h-2 w-2 bg-brand animate-ping rounded-full mt-4" />
+              ) : (
+                <>{stakingRebasePercentage}%</>
+              )}
             </h6>
           </div>
         </div>
 
-        <div className="metric gap-2 my-4">
+        <div className="metric gap-2 my-4 w-full">
           {otherMetricsTable.map(
             (metric: { label: string; value: string; unit: string }) => (
               <div
@@ -359,9 +370,13 @@ const Calculator = () => {
                 <span className="font-normal text-xs text-gray-600">
                   {metric.label}
                 </span>
-                <span className="font-semibold text-brand">
-                  {metric.value} {metric.unit}
-                </span>
+                {!loaded ? (
+                  <span className="h-1 w-1 bg-brand animate-ping rounded-full" />
+                ) : (
+                  <span className="font-semibold text-brand">
+                    {metric.value} {metric.unit}
+                  </span>
+                )}
               </div>
             )
           )}
@@ -372,9 +387,8 @@ const Calculator = () => {
             <RebaseTimer />
           </div>
         </div>
-        <div className="metric">
-          <span className="text-gray-400">Not affiliated to RomeDAO</span>
-        </div>
+
+        <Footer />
       </div>
     </div>
   );
