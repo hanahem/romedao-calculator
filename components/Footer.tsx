@@ -3,7 +3,7 @@ import { FaTwitter, FaGithub } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div className="p-4 flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full xl:m-auto mt-4">
       <span className="text-gray-400 text-sm font-light">
         Not affiliated to <a className="underline" href="https://romedao.finance">RomeDAO</a>
       </span>
